@@ -10,10 +10,12 @@ mentees=readf('students.csv')
 inter=readf('interactions.csv')
 feedback=readf('feedbacks.csv')
 
+# dictionary of mentors and their list of projects.
 ment_pro={}
 for m in mentor:
     ment_pro.update({m['MentorID']:m['Projects'].split(',')})
 
+# dictionary of projects and their list of students
 pro_stud={}
 for s in mentees:
     pro=s['ProjectID']
@@ -21,6 +23,7 @@ for s in mentees:
         pro_stud[pro]=[]
     pro_stud[pro].append(s['StudentID'])
 
+#dictionary of mentors and their mentees
 mentor_tee={}
 for m,p in ment_pro.items():
     mentor_tee[m]=[]
@@ -28,6 +31,7 @@ for m,p in ment_pro.items():
         if i in pro_stud:
             mentor_tee[m].extend(pro_stud[i])
 
+# student progress score
 def P(m):
     stud=mentor_tee[m]
     mile_comp=0
@@ -42,6 +46,7 @@ def P(m):
         return 0
     return mile_comp/mile_tot
 
+# responsiveness score
 def R(m):
     time_tot=0
     n=0
@@ -54,6 +59,7 @@ def R(m):
     t_avg=time_tot/n
     return math.exp(-t_avg/4)
 
+# engagement score
 def E(m):
     meet=0
     rev=0
@@ -75,6 +81,7 @@ def E(m):
     msg_norm=min(msg_avg/15,1)
     return 0.35*meet_norm + 0.35*rev_norm + 0.3*msg_norm
 
+# feedback score
 def F(m):
     feed=0
     n=0
@@ -86,23 +93,28 @@ def F(m):
         return 0
     return (feed/(5*n))
 
+# final mentor score
 def M(m):
     return 0.27*P(m) + 0.25*R(m) + 0.32*E(m) + 0.16*F(m)    
 
+# score over time
 def score_time(curr,prev,alpha=0.7):
     return round(alpha*curr + (1-alpha)*prev,5)
 
+# score decaying
 def decay(curr,weeks,d=0.9):
     if weeks>=2:
         return round(curr*(1-d),5)
     return curr
 
+# list of tuple of mentors, names, their score and their ranks
 ment_score=[]
 n=1
 for m in sorted(mentor, key=lambda m: M(m['MentorID']), reverse=True):
     ment_score.append(({'MentorID':m['MentorID'],'Name':m['Name'],'Final Mentor Score':round(M(m['MentorID']),5),'Rank':n}))
     n+=1
 
+# Same ranks if score is same!!
 for i in range(len(ment_score)):
     if i > 0 :
         if M(ment_score[i]['MentorID']) == M(ment_score[(i-1)]['MentorID']):
