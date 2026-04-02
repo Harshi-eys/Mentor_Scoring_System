@@ -100,8 +100,13 @@ def decay(curr,weeks,d=0.9):
 ment_score=[]
 n=1
 for m in sorted(mentor, key=lambda m: M(m['MentorID']), reverse=True):
-    ment_score.append({'MentorID':m['MentorID'],'Name':m['Name'],'Final Mentor Score':round(M(m['MentorID']),5),'Rank':n})
+    ment_score.append(({'MentorID':m['MentorID'],'Name':m['Name'],'Final Mentor Score':round(M(m['MentorID']),5),'Rank':n}))
     n+=1
+
+for i in range(len(ment_score)):
+    if i > 0 :
+        if M(ment_score[i]['MentorID']) == M(ment_score[(i-1)]['MentorID']):
+            ment_score[i]['Rank'] =ment_score[(i-1)]['Rank']
 
 with open('mentor_scores.csv','w') as f:
     f_name = ['MentorID', 'Name', 'Final Mentor Score', 'Rank']
